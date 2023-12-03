@@ -1,12 +1,10 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-    path::PathBuf,
-};
-
 use clap::Parser;
+use std::fs;
+use std::path::PathBuf;
 
 use super::{CommandImpl, DynError};
+
+use std::collections::HashMap;
 
 #[derive(Parser, Debug)]
 pub struct Day1b {
@@ -16,166 +14,67 @@ pub struct Day1b {
 
 impl CommandImpl for Day1b {
     fn main(&self) -> Result<(), DynError> {
-        let mut buffer = vec![];
-        let mut reader = File::open(&self.input)?;
-        let mut reader = BufReader::new(reader);
+        let mut total_sum = 0;
 
-        let mut sum = 0;
-        while let Ok(bytes) = reader.read_until(b'\n', &mut buffer) {
-            if bytes == 0 {
-                break;
-            }
-            // Find the first and last number in the line
-            sum += find_numbers_day_1b(&buffer) as usize;
-            buffer.clear();
+        for line in fs::read_to_string(&self.input).unwrap().lines() {
+            let (first, last) = find_first_and_last_int(line);
+            println!("{first} {last}");
+            total_sum += 10 * first + last;
         }
-
-        println!("Day1b answer: {:?}", sum);
+        println!("Day1b: {total_sum}");
         Ok(())
     }
 }
 
-fn find_numbers_day_1b(buffer: &[u8]) -> u8 {
-    let mut first = None;
-    let mut last = 0;
-    let mut index = 0;
-    while index < buffer.len() - 1 {
-        let byte = &buffer[index];
-        let b = match *byte {
-            48..=57 => Some(byte - 48),
-            // For words, use this trie like structure to progressively match.
-            97..=122 => match *byte {
-                b't' => {
-                    if let Some(next_byte) = buffer.get(index + 1) {
-                        match next_byte {
-                            b'w' => {
-                                if check_if_number(buffer, index, TWO) {
-                                    Some(2)
-                                } else {
-                                    None
-                                }
-                            } // two
-                            b'h' => {
-                                if check_if_number(buffer, index, THREE) {
-                                    Some(3)
-                                } else {
-                                    None
-                                }
-                            } // three
-                            _ => None,
-                        }
-                    } else {
-                        None
+fn find_first_and_last_int(line: &str) -> (i32, i32) {
+    let mut first: i32 = -1;
+    let mut found_first = false;
+    let mut last: i32 = -1;
+
+    for (i, char) in line.chars().enumerate() {
+        if char.is_numeric() {
+            if !found_first {
+                first = char.to_digit(10).unwrap() as i32;
+                found_first = true;
+            }
+            last = char.to_digit(10).unwrap() as i32;
+        } else {
+            match convert_str_to_number(&line[i..]) {
+                Some(i) => {
+                    if !found_first {
+                        first = i;
+                        found_first = true;
                     }
+                    last = i;
                 }
-                b'f' => {
-                    if let Some(next_byte) = buffer.get(index + 1) {
-                        match next_byte {
-                            b'o' => {
-                                if check_if_number(buffer, index, FOUR) {
-                                    Some(4)
-                                } else {
-                                    None
-                                }
-                            } // four
-                            b'i' => {
-                                if check_if_number(buffer, index, FIVE) {
-                                    Some(5)
-                                } else {
-                                    None
-                                }
-                            } // five
-                            _ => None,
-                        }
-                    } else {
-                        None
-                    }
-                }
-                b's' => {
-                    if let Some(next_byte) = buffer.get(index + 1) {
-                        match next_byte {
-                            b'i' => {
-                                if check_if_number(buffer, index, SIX) {
-                                    Some(6)
-                                } else {
-                                    None
-                                }
-                            } // six
-                            b'e' => {
-                                if check_if_number(buffer, index, SEVEN) {
-                                    Some(7)
-                                } else {
-                                    None
-                                }
-                            } // seven
-                            _ => None,
-                        }
-                    } else {
-                        None
-                    }
-                }
-                b'o' => {
-                    if check_if_number(buffer, index, ONE) {
-                        Some(1)
-                    } else {
-                        None
-                    }
-                }
-                b'e' => {
-                    if check_if_number(buffer, index, EIGHT) {
-                        Some(8)
-                    } else {
-                        None
-                    }
-                }
-                b'n' => {
-                    if check_if_number(buffer, index, NINE) {
-                        Some(9)
-                    } else {
-                        None
-                    }
-                }
-                b'z' => {
-                    if check_if_number(buffer, index, ZERO) {
-                        Some(0)
-                    } else {
-                        None
-                    }
-                }
-                _ => None,
-            },
-            _ => None,
-        };
-        if let Some(b) = b {
-            last = b;
-            if first.is_none() {
-                first = Some(last)
+                None => {}
             }
         }
-        index += 1;
     }
-    (first.unwrap_or(0) * 10) + last
+    (first, last)
 }
 
-#[inline]
-fn check_if_number(buffer: &[u8], start: usize, number: &[u8]) -> bool {
-    let end = start + number.len();
-    end < buffer.len() && &buffer[start..start + number.len()] == number
+fn convert_str_to_number(line: &str) -> Option<i32> {
+    let str_to_int: HashMap<&str, i32> = HashMap::from([
+        ("one", 1),
+        ("two", 2),
+        ("three", 3),
+        ("four", 4),
+        ("five", 5),
+        ("six", 6),
+        ("seven", 7),
+        ("eight", 8),
+        ("nine", 9),
+        ("zero", 0),
+    ]);
+
+    for (key, value) in str_to_int {
+        let length = key.len();
+        if length <= line.len() {
+            if key == &line[..length] {
+                return Some(value);
+            }
+        }
+    }
+    None
 }
-
-const ONE: &[u8] = b"one";
-
-const TWO: &[u8] = b"two";
-const THREE: &[u8] = b"three";
-
-const FOUR: &[u8] = b"four";
-const FIVE: &[u8] = b"five";
-
-const SIX: &[u8] = b"six";
-const SEVEN: &[u8] = b"seven";
-
-const EIGHT: &[u8] = b"eight";
-
-const NINE: &[u8] = b"nine";
-
-const ZERO: &[u8] = b"zero";

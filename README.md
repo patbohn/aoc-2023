@@ -1,6 +1,8 @@
-# AOC 2022
+Note: this is a fork from sstadick as the modular approach looks very useful! 
 
-This repo contains solutions for the [2022 Advent of Code](https://adventofcode.com/) in Rust.
+# AOC 2023
+
+This repo contains solutions for the [2023 Advent of Code](https://adventofcode.com/) in Rust.
 
 ## Running solutions
 

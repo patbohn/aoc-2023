@@ -1,12 +1,10 @@
-use std::{
-    fs::File,
-    io::{BufRead, BufReader},
-    path::PathBuf,
-};
-
 use clap::Parser;
+use std::fs;
+use std::path::PathBuf;
 
 use super::{CommandImpl, DynError};
+
+use std::collections::HashMap;
 
 #[derive(Parser, Debug)]
 pub struct Day1a {
@@ -16,39 +14,31 @@ pub struct Day1a {
 
 impl CommandImpl for Day1a {
     fn main(&self) -> Result<(), DynError> {
-        let mut buffer = vec![];
-        let mut reader = File::open(&self.input)?;
-        let mut reader = BufReader::new(reader);
-        let mut sum = 0;
-        while let Ok(bytes) = reader.read_until(b'\n', &mut buffer) {
-            if bytes == 0 {
-                break;
-            }
-            // Find the first and last number in the line
-            sum += find_numbers_day_1(&buffer) as usize;
-            buffer.clear();
-        }
+        let mut total_sum = 0;
 
-        println!("Day1a answer: {:?}", sum);
+        for line in fs::read_to_string(&self.input).unwrap().lines() {
+            let (first, last) = find_first_and_last_int(line);
+            println!("{first} {last}");
+            total_sum += 10 * first + last;
+        }
+        println!("Day1a: {total_sum}");
         Ok(())
     }
 }
 
-fn find_numbers_day_1(buffer: &[u8]) -> u8 {
-    let mut first = 0;
-    let mut last = 0;
-    for byte in buffer {
-        match *byte {
-            48..=57 => {
-                let byte = byte - 48;
-                last = byte;
-                if first == 0 {
-                    first = last;
-                }
+fn find_first_and_last_int(line: &str) -> (i32, i32) {
+    let mut first: i32 = -1;
+    let mut found_first = false;
+    let mut last: i32 = -1;
+
+    for (i, char) in line.chars().enumerate() {
+        if char.is_numeric() {
+            if !found_first {
+                first = char.to_digit(10).unwrap() as i32;
+                found_first = true;
             }
-            _ => (),
+            last = char.to_digit(10).unwrap() as i32;
         }
     }
-
-    (first * 10) + last
+    (first, last)
 }

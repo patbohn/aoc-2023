@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-
 use clap::Parser;
+use std::fs;
+use std::path::PathBuf;
 
 use super::{CommandImpl, DynError};
 
@@ -12,7 +12,12 @@ pub struct Day0 {
 
 impl CommandImpl for Day0 {
     fn main(&self) -> Result<(), DynError> {
-        println!("EX: {:?}", self.input);
+        let mut result = 0;
+
+        for line in fs::read_to_string(&self.input).unwrap().lines() {
+            //do something
+        }
+        println!("Day0: {result}");
         Ok(())
     }
 }
