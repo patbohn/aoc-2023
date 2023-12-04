@@ -32,7 +32,7 @@ fn find_first_and_last_int(line: &str) -> (i32, i32) {
     let mut last: i32 = -1;
 
     for (i, char) in line.chars().enumerate() {
-        if char.is_numeric() {
+        if char.is_ascii_digit() {
             if !found_first {
                 first = char.to_digit(10).unwrap() as i32;
                 found_first = true;

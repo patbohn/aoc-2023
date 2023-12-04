@@ -6,12 +6,12 @@ use std::path::PathBuf;
 use super::{CommandImpl, DynError};
 
 #[derive(Parser, Debug)]
-pub struct Day0 {
+pub struct Day2a {
     #[clap(long, short)]
     input: PathBuf,
 }
 
-impl CommandImpl for Day0 {
+impl CommandImpl for Day2a {
     fn main(&self) -> Result<(), DynError> {
         let mut total_sum = 0;
 
