@@ -16,9 +16,7 @@ impl CommandImpl for Day4b {
     fn main(&self) -> Result<(), DynError> {
         let mut result = 0;
         let mut num_matches_per_game: Vec<usize> = Vec::new();
-        for line in fs::read_to_string(&self.input).unwrap().lines() {
-            //do something
-
+        for line in fs::read_to_string(&self.input).expect("Could not open file.").lines() {
             let (card_id, num_matches) = get_num_matching(line);
             num_matches_per_game.push(num_matches);
         }
@@ -30,8 +28,14 @@ impl CommandImpl for Day4b {
 
 fn get_card_id(line: &str) -> usize {
     let re = Regex::new(r"Card\s*([0-9]+):").unwrap();
-    let number_match: usize =
-        re.captures(line).unwrap().get(1).expect("No Card ID found").as_str().parse().unwrap();
+    let number_match: usize = re
+        .captures(line)
+        .unwrap()
+        .get(1)
+        .expect("No Card ID found")
+        .as_str()
+        .parse()
+        .expect("Could not convert Card ID to number");
     println!("Match: {number_match}");
 
     return number_match;
@@ -50,22 +54,17 @@ fn get_num_matching(line: &str) -> (usize, usize) {
         .collect::<Vec<&str>>()
         .iter()
         .filter(|x| x.len() > 0)
-        .map(|x| x.parse().unwrap())
+        .map(|x| x.parse().expect("Conversion of a value to u8 in Set 1 failed."))
         .collect::<HashSet<u8>>();
     let winning_numbers: HashSet<u8> = number_sets[1]
         .split(" ")
         .collect::<Vec<&str>>()
         .iter()
         .filter(|x| x.len() > 0)
-        .map(|x| x.parse().unwrap())
+        .map(|x| x.parse().expect("Conversion of a value to u8 in Set 2 failed."))
         .collect::<HashSet<u8>>();
-    let mut matching_numbers: usize = 0;
-    for number in picked_numbers {
-        if winning_numbers.contains(&number) {
-            println!("Number {number} is in winning set.");
-            matching_numbers += 1
-        }
-    }
+
+    let matching_numbers: usize = picked_numbers.intersection(&winning_numbers).count();
 
     return (card_id, matching_numbers);
 }
@@ -87,6 +86,6 @@ fn calc_full_score(num_matches_per_game: Vec<usize>) -> usize {
             }
         }
     }
-    let mut total_num_games: usize = num_copies.iter().sum();
+    let total_num_games: usize = num_copies.iter().sum();
     return total_num_games;
 }
