@@ -12,22 +12,17 @@ pub struct Day4b {
     input: PathBuf,
 }
 
-struct CardGame {
-    id: usize,
-    num_matches: usize,
-}
-
 impl CommandImpl for Day4b {
     fn main(&self) -> Result<(), DynError> {
         let mut result = 0;
-        let mut game_results: Vec<CardGame> = Vec::new();
+        let mut num_matches_per_game: Vec<usize> = Vec::new();
         for line in fs::read_to_string(&self.input).unwrap().lines() {
             //do something
 
             let (card_id, num_matches) = get_num_matching(line);
-            game_results.push(CardGame { id: card_id, num_matches: num_matches });
+            num_matches_per_game.push(num_matches);
         }
-        let score = calc_full_score(game_results);
+        let score = calc_full_score(num_matches_per_game);
         println!("Day4b: {score}");
         Ok(())
     }
@@ -75,26 +70,23 @@ fn get_num_matching(line: &str) -> (usize, usize) {
     return (card_id, matching_numbers);
 }
 
-fn calc_full_score(game_results: Vec<CardGame>) -> usize {
-    println!("Length of game results is {}", game_results.len());
-    let mut num_copies: Vec<usize> = vec![1; game_results.len()];
+fn calc_full_score(num_matches_per_game: Vec<usize>) -> usize {
+    println!("Length of game results is {}", num_matches_per_game.len());
+    let mut num_copies: Vec<usize> = vec![1; num_matches_per_game.len()];
     //println!("Length of num_copies vector is {}", num_copies.len());
-    for game_id in 0..game_results.len() - 1 {
-        let current_game = &game_results[game_id];
+    for game_id in 0..num_matches_per_game.len() - 1 {
+        let current_matches = &num_matches_per_game[game_id];
         println!("Game {} has {} copies", game_id, num_copies[game_id]);
         for _ in 0..num_copies[game_id] {
-            for i in game_id..(game_id + current_game.num_matches) {
+            for i in game_id..(game_id + current_matches) {
                 let increasing_id = i + 1;
                 //println!("Increasing number of copies for {}", increasing_id);
-                if increasing_id < game_results.len() {
+                if increasing_id < num_matches_per_game.len() {
                     num_copies[i + 1] += 1;
                 }
             }
         }
     }
-    let mut total_num_games: usize = 0;
-    for copies in num_copies.iter() {
-        total_num_games += copies;
-    }
+    let mut total_num_games: usize = num_copies.iter().sum();
     return total_num_games;
 }
