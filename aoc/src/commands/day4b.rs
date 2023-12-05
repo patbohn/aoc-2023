@@ -36,19 +36,19 @@ fn get_card_id(line: &str) -> usize {
         .as_str()
         .parse()
         .expect("Could not convert Card ID to number");
-    println!("Match: {number_match}");
+    //println!("Match: {number_match}");
 
     return number_match;
 }
 
 fn get_num_matching(line: &str) -> (usize, usize) {
     let card_id = get_card_id(line);
-    println!("Card id: {card_id}");
+    //println!("Card id: {card_id}");
     let number_sets: Vec<&str> =
         line.split(": ").collect::<Vec<&str>>()[1].split(" | ").collect::<Vec<&str>>();
-    println!("Length of number_sets: {}", number_sets.len());
-    println!("Number set 1: {}", number_sets[0]);
-    println!("Number set 2: {}", number_sets[1]);
+    //println!("Length of number_sets: {}", number_sets.len());
+    //println!("Number set 1: {}", number_sets[0]);
+    //println!("Number set 2: {}", number_sets[1]);
     let picked_numbers: HashSet<u8> = number_sets[0]
         .split(" ")
         .collect::<Vec<&str>>()
@@ -75,7 +75,7 @@ fn calc_full_score(num_matches_per_game: Vec<usize>) -> usize {
     //println!("Length of num_copies vector is {}", num_copies.len());
     for game_id in 0..num_matches_per_game.len() - 1 {
         let current_matches = &num_matches_per_game[game_id];
-        println!("Game {} has {} copies", game_id, num_copies[game_id]);
+        //println!("Game {} has {} copies", game_id, num_copies[game_id]);
         for _ in 0..num_copies[game_id] {
             for i in game_id..(game_id + current_matches) {
                 let increasing_id = i + 1;
