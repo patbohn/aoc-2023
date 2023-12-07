@@ -44,7 +44,7 @@ impl Boatrace {
                     upper_bound.ceil() as usize - lower_bound.ceil() as usize - 1
                 }
             }
-            Err(_) => 0 as usize,
+            Err(_) => 0_usize,
         }
     }
 }
