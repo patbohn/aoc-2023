@@ -245,28 +245,4 @@ mod tests {
         assert_eq!(hand.bid, bid);
         assert_eq!(hand.handtype, Some(HandType::OnePair));
     }
-    fn parse_input() {
-        todo!("Implement function to parse input")
-    }
-
-    #[test]
-    fn test_order_hands() {
-        todo!("Create vector of Hand and sort it by rank");
-        /*
-        let hands: Vec<Hand> = vec![Hand::new(), Hand::new(), Hand::new()];
-        let mut hands_order: Vec<Hand> = sort_hands(hands);
-
-        assert_eq!(hands_order.pop().unwrap().handtype, Some(HandType::FullHouse));
-        assert_eq!(hands_order.pop().unwrap().handtype, Some(HandType::FullHouse));
-        assert_eq!(hands_order.pop().unwrap().handtype, Some(HandType::FourKind));
-        assert_eq!(hands_order.pop().unwrap().handtype, Some(HandType::ThreeKind));
-        assert_eq!(hands_order.pop().unwrap().handtype, Some(HandType::OnePair));
-        */
-    }
-
-    fn evaluate_test() {
-        todo!("Test case");
-        let total_winnings = 0;
-        assert_eq!(total_winnings, 6440);
-    }
 }
