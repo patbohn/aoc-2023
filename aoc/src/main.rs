@@ -35,6 +35,7 @@ enum SubCommand {
     Day7b(day7b::Day7b),
     Day8a(day8a::Day8a),
     Day8b(day8b::Day8b),
+    Day8bsbf(day8b_smartbf::Day8bsbf),
     Day8bBruteforce(day8b_bruteforce::Day8bBruteforce),
     Day9a(day9a::Day9a),
     Day9b(day9b::Day9b),

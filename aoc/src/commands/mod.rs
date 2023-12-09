@@ -17,6 +17,7 @@ pub mod day7b;
 pub mod day8a;
 pub mod day8b;
 pub mod day8b_bruteforce;
+pub mod day8b_smartbf;
 pub mod day9a;
 pub mod day9b;
 

@@ -104,7 +104,7 @@ fn check_all_ends(currents: &Vec<&str>) -> bool {
 }
 //
 //
-//
+// idea: find
 //
 //
 //

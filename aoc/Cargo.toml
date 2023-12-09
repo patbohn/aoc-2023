@@ -12,4 +12,5 @@ nom = "7.1.1"
 regex = "1.10.2"
 strum = "0.25.0"
 strum_macros = "0.25.3"
+num = "0.4.1"
 
