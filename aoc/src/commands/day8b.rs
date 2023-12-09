@@ -132,12 +132,13 @@ fn find_cycle_length_and_z(
     Err("Could not find circular transversion".to_string())
 }
 
-// This requires a lot of assumptions, mainly that all starts only encounter
-// only one __Z, and that the length of the cycle that they enter is equal
+// This requires a lot of assumptions, mainly 1) that all starts encounter
+//  one __Z, and 2) that the length of the cycle that they enter is equal
 // to the number of steps until they first encountered Z. In other words,
 // Steps_encountering_Z(n) = Z_pos + Cycle_length x n
-// can simplify to Cycle_length x (n+1)
-// this in turn enables detection by the lowest common denominator
+// can be simplified to Steps_encountering_Z(n) = Cycle_length x (n+1).
+// this in turn enables detection by the lowest common denominator as
+// n must be an integer for all
 fn find_steps_required(data: Vec<(usize, usize, usize)>) -> usize {
     let factors: Vec<usize> = data.iter().map(|x| x.1).collect();
     //dbg!(&factors);

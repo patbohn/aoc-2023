@@ -1,3 +1,4 @@
+#![feature(array_windows)]
 #[allow(unused)]
 pub mod commands;
 pub mod utils;
@@ -35,6 +36,8 @@ enum SubCommand {
     Day8a(day8a::Day8a),
     Day8b(day8b::Day8b),
     Day8bBruteforce(day8b_bruteforce::Day8bBruteforce),
+    Day9a(day9a::Day9a),
+    Day9b(day9b::Day9b),
 }
 fn main() -> Result<(), DynError> {
     let opts = Opts::parse();
