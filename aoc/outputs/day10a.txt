@@ -1,0 +1,19 @@
+Walking N from Start
+Encountered mismatching pipe when starting from N
+Walking E from Start
+Encountered mismatching pipe when starting from E
+Walking S from Start
+Found circle starting from S
+Walking W from Start
+Found circle starting from W
+When walking from N
+No circle starting from N
+When walking from E
+No circle starting from E
+When walking from S
+Length of circle is 13508, max distance is thus 6754
+Max distance is at X: 101, Y: 53
+When walking from W
+Length of circle is 13508, max distance is thus 6754
+Max distance is at X: 101, Y: 53
+Day10a: 0

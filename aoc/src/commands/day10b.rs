@@ -17,10 +17,9 @@ pub struct Day10b {
 //    this should ensure that all fields that are outside are connected
 // 2. Find a field that is definitely outside (e.g. position < min_position pipes)
 // 3. Walk to all fields possible
-//    (Hilbert curve?) mark all positions that touch the first, then for each new marked to the same
-// 4. To count only fields present at the start, look at only every 2nd
+//    -> mark all positions that touch the first, then for each new marked to the same
+// 4. To count only fields present at the start, look at only every 2nd (+1)
 /*
-
 
 -> change all tiles not part of the loop to .
 
@@ -70,9 +69,7 @@ O..........
 ...L-----J.
 ...........
 
--> count all (non-marked) . that are at (x%2 == 0 & y%2 == 0)
-
-
+-> count all non-marked ().) that are at (x%2 == 1 & y%2 == 1)
 */
 
 fn mark_outside_pipes(mut field: Field) -> Result<Field, String> {
