@@ -148,5 +148,5 @@ fn find_cycle_length_and_z(
         }
         instruction = instructions[instruction_index];
     }
-    Err("Could not find circular transversion".to_string())
+    Err("Could not find circular transversion in 10^9 steps".to_string())
 }
