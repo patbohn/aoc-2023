@@ -72,6 +72,49 @@ O..........
 -> count all non-marked ().) that are at (x%2 == 1 & y%2 == 1)
 */
 
+impl CommandImpl for Day10b {
+    fn main(&self) -> Result<(), DynError> {
+        let mut result = 0;
+        let field = Field::from_input(fs::read_to_string(&self.input).unwrap());
+        //dbg!(&field);
+        let circle = &field.find_circle();
+        let mut correct_path = Vec::new();
+
+        for (direction, path) in circle {
+            println!("When walking from {direction}");
+            match path {
+                Some(p) => {
+                    correct_path = p.clone();
+                    println!(
+                        "Length of circle is {}, max distance is thus {}",
+                        p.len(),
+                        p.len() / 2
+                    );
+                    let max_dist_position = p.get(p.len() / 2).unwrap();
+                    println!(
+                        "Max distance is at X: {}, Y: {}",
+                        max_dist_position.1, max_dist_position.0
+                    );
+                }
+                None => {
+                    println!("No circle starting from {direction}")
+                }
+            }
+        }
+        println!("{}", &field);
+        let exploded_field = field.expand(&correct_path);
+        //dbg!(&exploded_field);
+        //dbg!(&circle);
+        println!("{}", &exploded_field);
+        let exploded_field = mark_outside_pipes(exploded_field).unwrap();
+        println!("Marked field:");
+        println!("{}", &exploded_field);
+        let count = count_pre_expansion_dots(&exploded_field);
+        println!("Day10a: {count}");
+        Ok(())
+    }
+}
+
 fn mark_outside_pipes(mut field: Field) -> Result<Field, String> {
     // start at 0,0 (we know this one cannot be inside the pipes)
     let mut current_position = (0, 0);
@@ -116,46 +159,126 @@ fn count_pre_expansion_dots(field: &Field) -> usize {
     count
 }
 
-impl CommandImpl for Day10b {
-    fn main(&self) -> Result<(), DynError> {
-        let mut result = 0;
-        let field = Field::from_input(fs::read_to_string(&self.input).unwrap());
-        //dbg!(&field);
-        let circle = &field.find_circle();
-        let mut correct_path = Vec::new();
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+enum Direction {
+    N,
+    E,
+    S,
+    W,
+}
 
-        for (direction, path) in circle {
-            println!("When walking from {direction}");
-            match path {
-                Some(p) => {
-                    correct_path = p.clone();
-                    println!(
-                        "Length of circle is {}, max distance is thus {}",
-                        p.len(),
-                        p.len() / 2
-                    );
-                    let max_dist_position = p.get(p.len() / 2).unwrap();
-                    println!(
-                        "Max distance is at X: {}, Y: {}",
-                        max_dist_position.1, max_dist_position.0
-                    );
-                }
-                None => {
-                    println!("No circle starting from {direction}")
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Direction::N => write!(f, "N"),
+            Direction::E => write!(f, "E"),
+            Direction::S => write!(f, "S"),
+            Direction::W => write!(f, "W"),
+        }
+    }
+}
+
+impl Direction {
+    fn walk(
+        &self,
+        position: &(usize, usize),
+        field_limits: &(usize, usize),
+    ) -> Option<(usize, usize)> {
+        use Direction::*;
+        let x = position.1;
+        let y = position.0;
+        let max_x = field_limits.1 - 1;
+        let max_y = field_limits.0 - 1;
+        match self {
+            N => return if y > 0 { Some((y - 1, x)) } else { None },
+            E => return if x < max_x { Some((y, x + 1)) } else { None },
+            S => return if y < max_y { Some((y + 1, x)) } else { None },
+            W => return if x > 0 { Some((y, x - 1)) } else { None },
+        }
+    }
+
+    fn comp(&self) -> Direction {
+        use Direction::*;
+        match self {
+            N => S,
+            E => W,
+            S => N,
+            W => E,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+enum Pipe {
+    None,
+    NS,
+    EW,
+    NE,
+    ES,
+    SW,
+    WN,
+    Start,
+    Outside,
+}
+
+impl Pipe {
+    fn directions(&self) -> Option<Vec<Direction>> {
+        use Direction::*;
+        use Pipe::*;
+        match self {
+            None => Option::None,
+            NS => Some(vec![N, S]),
+            EW => Some(vec![E, W]),
+            NE => Some(vec![N, E]),
+            ES => Some(vec![E, S]),
+            SW => Some(vec![S, W]),
+            WN => Some(vec![W, N]),
+            Start => Some(vec![N, E, S, W]),
+            Outside => Option::None,
+        }
+    }
+
+    fn from_char(c: char) -> Self {
+        match c {
+            '.' => Pipe::None,
+            'S' => Pipe::Start,
+            '|' => Pipe::NS,
+            '-' => Pipe::EW,
+            'L' => Pipe::NE,
+            'J' => Pipe::WN,
+            '7' => Pipe::SW,
+            'F' => Pipe::ES,
+            'O' => Pipe::Outside,
+            other => panic!("Unaware of char {other}"),
+        }
+    }
+
+    fn as_char(&self) -> char {
+        use Pipe::*;
+        match self {
+            None => '.',
+            Start => 'S',
+            NS => '|',
+            EW => '-',
+            NE => 'L',
+            WN => 'J',
+            SW => '7',
+            ES => 'F',
+            Outside => 'O',
+        }
+    }
+
+    fn transverse(&self, entry: &Direction) -> Option<Direction> {
+        match self.directions() {
+            Some(directions) => {
+                if directions.contains(&entry.comp()) {
+                    Some(directions.iter().filter(|p| p != &&entry.comp()).last().unwrap().clone())
+                } else {
+                    None
                 }
             }
+            None => None,
         }
-        println!("{}", &field);
-        let exploded_field = field.expand(&correct_path);
-        //dbg!(&exploded_field);
-        //dbg!(&circle);
-        println!("{}", &exploded_field);
-        let exploded_field = mark_outside_pipes(exploded_field).unwrap();
-        println!("Marked field:");
-        println!("{}", &exploded_field);
-        let count = count_pre_expansion_dots(&exploded_field);
-        println!("Day10a: {count}");
-        Ok(())
     }
 }
 
@@ -163,6 +286,18 @@ impl CommandImpl for Day10b {
 struct Field {
     pipes: Vec<Vec<Pipe>>, //note that this is y,x
     start: Option<(usize, usize)>,
+}
+
+impl fmt::Display for Field {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut string = "".to_string();
+        for row in &self.pipes {
+            let row_str: String = row.iter().map(|pipe| pipe.as_char().to_string()).collect();
+            string.push_str(&row_str);
+            string.push_str("\n");
+        }
+        write!(f, "{}", string)
+    }
 }
 
 impl Field {
@@ -287,140 +422,5 @@ impl Field {
                 intermediate_pipe;
         }
         Field { pipes: field, start: Some(start) }
-    }
-}
-
-impl fmt::Display for Field {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut string = "".to_string();
-        for row in &self.pipes {
-            let row_str: String = row.iter().map(|pipe| pipe.as_char().to_string()).collect();
-            string.push_str(&row_str);
-            string.push_str("\n");
-        }
-        write!(f, "{}", string)
-    }
-}
-
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
-enum Pipe {
-    None,
-    NS,
-    EW,
-    NE,
-    ES,
-    SW,
-    WN,
-    Start,
-    Outside,
-}
-
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
-enum Direction {
-    N,
-    E,
-    S,
-    W,
-}
-
-impl fmt::Display for Direction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Direction::N => write!(f, "N"),
-            Direction::E => write!(f, "E"),
-            Direction::S => write!(f, "S"),
-            Direction::W => write!(f, "W"),
-        }
-    }
-}
-
-impl Direction {
-    fn walk(
-        &self,
-        position: &(usize, usize),
-        field_limits: &(usize, usize),
-    ) -> Option<(usize, usize)> {
-        use Direction::*;
-        let x = position.1;
-        let y = position.0;
-        let max_x = field_limits.1 - 1;
-        let max_y = field_limits.0 - 1;
-        match self {
-            N => return if y > 0 { Some((y - 1, x)) } else { None },
-            E => return if x < max_x { Some((y, x + 1)) } else { None },
-            S => return if y < max_y { Some((y + 1, x)) } else { None },
-            W => return if x > 0 { Some((y, x - 1)) } else { None },
-        }
-    }
-
-    fn comp(&self) -> Direction {
-        use Direction::*;
-        match self {
-            N => S,
-            E => W,
-            S => N,
-            W => E,
-        }
-    }
-}
-
-impl Pipe {
-    fn directions(&self) -> Option<Vec<Direction>> {
-        use Direction::*;
-        use Pipe::*;
-        match self {
-            None => Option::None,
-            NS => Some(vec![N, S]),
-            EW => Some(vec![E, W]),
-            NE => Some(vec![N, E]),
-            ES => Some(vec![E, S]),
-            SW => Some(vec![S, W]),
-            WN => Some(vec![W, N]),
-            Start => Some(vec![N, E, S, W]),
-            Outside => Option::None,
-        }
-    }
-
-    fn from_char(c: char) -> Self {
-        match c {
-            '.' => Pipe::None,
-            'S' => Pipe::Start,
-            '|' => Pipe::NS,
-            '-' => Pipe::EW,
-            'L' => Pipe::NE,
-            'J' => Pipe::WN,
-            '7' => Pipe::SW,
-            'F' => Pipe::ES,
-            'O' => Pipe::Outside,
-            other => panic!("Unaware of char {other}"),
-        }
-    }
-
-    fn as_char(&self) -> char {
-        use Pipe::*;
-        match self {
-            None => '.',
-            Start => 'S',
-            NS => '|',
-            EW => '-',
-            NE => 'L',
-            WN => 'J',
-            SW => '7',
-            ES => 'F',
-            Outside => 'O',
-        }
-    }
-
-    fn transverse(&self, entry: &Direction) -> Option<Direction> {
-        match self.directions() {
-            Some(directions) => {
-                if directions.contains(&entry.comp()) {
-                    Some(directions.iter().filter(|p| p != &&entry.comp()).last().unwrap().clone())
-                } else {
-                    None
-                }
-            }
-            None => None,
-        }
     }
 }
