@@ -387,11 +387,13 @@ impl Field {
         let start = path.first().unwrap().clone();
         let mut this_path = path.clone();
         this_path.push(start);
+        //second step: add in circular path
         for steps in this_path.array_windows::<2>() {
             let current_step = steps.first().unwrap();
             let next_step = steps.last().unwrap();
             let new_x: usize = current_step.1 * 2 + 1;
             let new_y: usize = current_step.0 * 2 + 1;
+            //add existing connection
             *field.get_mut(new_y).unwrap().get_mut(new_x).unwrap() = self.get(current_step).clone();
             let delta_x: isize = next_step.1 as isize - current_step.1 as isize;
             let delta_y: isize = next_step.0 as isize - current_step.0 as isize;
@@ -418,6 +420,7 @@ impl Field {
                 0 => {}
                 _ => panic!("Delta x should never be something other than -1, 0 or 1"),
             }
+            //add intermediate connection
             *field.get_mut(intermediate_y).unwrap().get_mut(intermediate_x).unwrap() =
                 intermediate_pipe;
         }
